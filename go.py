@@ -1,12 +1,14 @@
 import requests
 import json
-from time import sleep
+from time import sleep, time
 import subprocess
 import shlex
 from os import path
+import math
 
 config = {}
 
+global_time = time()
 
 class bcolors:
     HEADER = '\033[95m'
@@ -31,11 +33,28 @@ def check_committer(name):
     return config['individual']['name']
 
 
+def format_duration(delay):
+
+    days = math.floor(delay / 86400)
+    delay -= 86400 * days
+    hours = math.floor(delay / 3600)
+    delay -= 3600 * hours
+    minutes = math.floor(delay / 60)
+    delay -= 60 * minutes
+    delay = math.floor(delay)
+    return " {0} days, {1} hours, {2} minutes, {3} seconds".format(int(days),
+                                                                   int(hours),
+                                                                   int(minutes),
+                                                                   int(delay))
+
 def print_commit(commit):
     committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (
         bcolors.OKGREEN, commit['author']['name'])
     message = '%s' % commit['message']
-    print committer, message, '\n'
+    sleep(10)
+    time_to_merge_something = "It took {0}  to merge something.".format(
+        format_duration(time() - global_time))
+    print committer, message, '\n', '\n', '\n',  time_to_merge_something
 
 
 def play_song(music):
@@ -51,6 +70,7 @@ def go(last_commit_sha):
         print_commit(commit)
         song_to_play = check_committer(commit['author']['name'])
         play_song(song_to_play)
+        global_time = time()
     sleep(60)
     go(last_commit_sha)
 
