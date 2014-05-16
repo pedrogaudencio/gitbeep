@@ -10,9 +10,26 @@ import select
 import sys
 import logging
 from colors import bcolors
+import curses
+import signal
+import sys
+
+def signal_handler(signal, frame):
+    curses.nocbreak();
+    stdscr.keypad(0);
+    curses.echo()
+    curses.endwin()
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+
+
 
 my_logger = logging.getLogger("my_logger")
 config = {}
+stdscr = curses.initscr()
+curses.noecho()
+curses.cbreak()
 
 global_time = time()
 
