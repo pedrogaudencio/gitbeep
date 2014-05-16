@@ -7,6 +7,11 @@ import shlex
 invenio_repo = 'https://api.github.com/repos/jirikuncar/invenio/commits'
 imperial_march = 'beepmarch.sh'
 
+song_dict = {'Pedro Gaudencio': '',
+             'Guillaume Lastecoueres': '',
+             'Jan Age Lavik': '',
+            }
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -25,11 +30,14 @@ def fetch_last_commit(repo):
         return repoItem[0]['sha'], repoItem[0]['commit']
 
 
+def check_committer(name):
+    return song_dict['name']
+
+
 def print_commit(commit):
-    committer = '%s%s just got merged in pu!\033[0m\n' % (bcolors.OKGREEN, commit['author']['name'])
+    committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (bcolors.OKGREEN, commit['author']['name'])
     message = '%s' % commit['message']
-    print committer
-    print message
+    print committer, message, '\n'
 
 
 def play_song(sheet_paper):
@@ -43,7 +51,9 @@ def go(last_commit_sha):
     if newest_commit_sha != last_commit_sha:
         last_commit_sha = newest_commit_sha
         print_commit(commit)
-        play_song(imperial_march)
+        #song_to_play = check_committer(commit['author']['name'])
+        song_to_play = imperial_march
+        play_song(song_to_play)
     sleep(60)
     go(last_commit_sha)
 
