@@ -10,6 +10,7 @@ config = {}
 
 global_time = time()
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -34,7 +35,6 @@ def check_committer(name):
 
 
 def format_duration(delay):
-
     days = math.floor(delay / 86400)
     delay -= 86400 * days
     hours = math.floor(delay / 3600)
@@ -47,6 +47,7 @@ def format_duration(delay):
                                                                    int(minutes),
                                                                    int(delay))
 
+
 def print_commit(commit):
     committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (
         bcolors.OKGREEN, commit['author']['name'])
@@ -54,7 +55,7 @@ def print_commit(commit):
     sleep(10)
     time_to_merge_something = "It took {0}  to merge something.".format(
         format_duration(time() - global_time))
-    print committer, message, '\n', '\n', '\n',  time_to_merge_something
+    print committer, message, '\n', '\n', '\n', time_to_merge_something
 
 
 def play_song(music):
