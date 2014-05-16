@@ -25,7 +25,6 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 
-my_logger = logging.getLogger("my_logger")
 config = {}
 stdscr = curses.initscr()
 curses.noecho()
@@ -67,12 +66,21 @@ def format_duration(delay):
 
 
 def print_commit(commit):
+
     committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (
         bcolors.OKGREEN, commit['author']['name'])
     message = '%s' % commit['message']
     time_to_merge_something = "It took {0}  to merge something.".format(
         format_duration(time() - global_time))
-    print committer, message, '\n', '\n', '\n', time_to_merge_something
+    line = 0
+
+    lines_to_print =  committer + message +  '\n\n\n' + time_to_merge_something
+    lines_to_print = lines_to_print.split('\n')
+    for i in lines_to_print:
+        stdscr.addstr(line, 0, i)
+        stdscr.refresh()
+        line = line + 1
+    # print committer, message, '\n', '\n', '\n', time_to_merge_something
 
 
 def play_song(music):
@@ -93,10 +101,9 @@ def go(last_commit_sha):
             play_song(song_to_play)
             global_time = time()
     except:
-        my_logger.log(40, "github doesn't answer")
+        print "github doesn't answer"
         last_commit_sha = None
-    sleep(10)
-    my_leaderboard.print_leaderboard()
+    sleep(1)
     go(last_commit_sha)
 
 
