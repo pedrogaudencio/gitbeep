@@ -49,8 +49,7 @@ def go(last_commit_sha):
     if newest_commit_sha != last_commit_sha:
         last_commit_sha = newest_commit_sha
         print_commit(commit)
-        #song_to_play = check_committer(commit['author']['name'])
-        song_to_play = config['music']
+        song_to_play = check_committer(commit['author']['name'])
         play_song(song_to_play)
     sleep(60)
     go(last_commit_sha)
