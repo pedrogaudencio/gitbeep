@@ -5,11 +5,13 @@ import subprocess
 import shlex
 from os import path
 import math
-
+from score import Leaderboard
 config = {}
+
 
 global_time = time()
 
+my_leaderboard = Leaderboard()
 
 class bcolors:
     HEADER = '\033[95m'
@@ -52,7 +54,6 @@ def print_commit(commit):
     committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (
         bcolors.OKGREEN, commit['author']['name'])
     message = '%s' % commit['message']
-    sleep(10)
     time_to_merge_something = "It took {0}  to merge something.".format(
         format_duration(time() - global_time))
     print committer, message, '\n', '\n', '\n', time_to_merge_something
@@ -69,6 +70,7 @@ def go(last_commit_sha):
     if newest_commit_sha != last_commit_sha:
         last_commit_sha = newest_commit_sha
         print_commit(commit)
+        my_leaderboard.score_add_commit(commit['author']['name'], newest_commit_sha)
         song_to_play = check_committer(commit['author']['name'])
         play_song(song_to_play)
         global_time = time()
