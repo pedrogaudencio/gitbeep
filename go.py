@@ -1,17 +1,16 @@
 import requests
 import json
-from time import sleep, time
+from time import sleep
 import subprocess
 import shlex
 from os import path
-import math
 from score import Leaderboard
+from pullrequests import PRCalc
+
 config = {}
-
-
-global_time = time()
-
 my_leaderboard = Leaderboard()
+pull_requests = PRCalc()
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -27,7 +26,7 @@ def fetch_last_commit(repo):
 
     if r.ok:
         repoItem = json.loads(r.text or r.content)
-        return repoItem[0]['sha'], repoItem[0]['commit']
+        return repoItem[0]['sha'], repoItem[0]['commit'], repoItem[0]['author']['id']
 
 
 def check_committer(name):
@@ -36,27 +35,15 @@ def check_committer(name):
     return config['individual']['name']
 
 
-def format_duration(delay):
-    days = math.floor(delay / 86400)
-    delay -= 86400 * days
-    hours = math.floor(delay / 3600)
-    delay -= 3600 * hours
-    minutes = math.floor(delay / 60)
-    delay -= 60 * minutes
-    delay = math.floor(delay)
-    return " {0} days, {1} hours, {2} minutes, {3} seconds".format(int(days),
-                                                                   int(hours),
-                                                                   int(minutes),
-                                                                   int(delay))
-
-
-def print_commit(commit):
-    committer = '%s\n%s just got merged in pu!\033[0m\n\n' % (
-        bcolors.OKGREEN, commit['author']['name'])
+def print_commit(commit, user_id, sha):
+    committer = '%s\n%s just got merged in pu!%s\n\n' % (
+        bcolors.OKGREEN, commit['author']['name'], bcolors.ENDC)
     message = '%s' % commit['message']
-    time_to_merge_something = "It took {0}  to merge something.".format(
-        format_duration(time() - global_time))
-    print committer, message, '\n', '\n', '\n', time_to_merge_something
+    merging_time = pull_requests.get_frustration_time(user_id,
+                                                      sha,
+                                                      commit['author']['date'])
+    merging_timep = '%sI took %s to get merged.%s' % (bcolors.OKBLUE, merging_time, bcolors.ENDC)
+    print committer, message, '\n\n', merging_timep, '\n\n'
 
 
 def play_song(music):
@@ -66,19 +53,19 @@ def play_song(music):
 
 
 def go(last_commit_sha):
-    newest_commit_sha, commit = fetch_last_commit(config['repository'])
+    newest_commit_sha, commit, user_id = fetch_last_commit(config['commit_repo'])
     if newest_commit_sha != last_commit_sha:
         last_commit_sha = newest_commit_sha
-        print_commit(commit)
+        print_commit(commit, user_id, newest_commit_sha)
         my_leaderboard.score_add_commit(commit['author']['name'], newest_commit_sha)
+        pull_requests.update_pullrequests(config['pullrequests_repo'])
         song_to_play = check_committer(commit['author']['name'])
         play_song(song_to_play)
-        global_time = time()
     sleep(60)
     go(last_commit_sha)
 
 
 if __name__ == '__main__':
     execfile("gitbeep.conf", config)
-    last_commit = fetch_last_commit(config['repository'])
+    last_commit = fetch_last_commit(config['commit_repo'])
     go(last_commit)
