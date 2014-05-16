@@ -3,14 +3,9 @@ import json
 from time import sleep
 import subprocess
 import shlex
+from os import path
 
-invenio_repo = 'https://api.github.com/repos/jirikuncar/invenio/commits'
-imperial_march = 'beepmarch.sh'
-
-song_dict = {'Pedro Gaudencio': '',
-             'Guillaume Lastecoueres': '',
-             'Jan Age Lavik': '',
-            }
+config = {}
 
 
 class bcolors:
@@ -31,7 +26,9 @@ def fetch_last_commit(repo):
 
 
 def check_committer(name):
-    return song_dict['name']
+    if name not in config['individual']:
+        return config['music']
+    return config['individual']['name']
 
 
 def print_commit(commit):
@@ -40,24 +37,25 @@ def print_commit(commit):
     print committer, message, '\n'
 
 
-def play_song(sheet_paper):
-    play_command = 'bash %s' % sheet_paper
+def play_song(music):
+    play_command = 'mpg123 -q %s' % path.join(config['song_folder'], music)
     proc = subprocess.Popen(shlex.split(play_command), stdout=subprocess.PIPE)
     proc.communicate()
 
 
 def go(last_commit_sha):
-    newest_commit_sha, commit = fetch_last_commit(invenio_repo)
+    newest_commit_sha, commit = fetch_last_commit(config['repository'])
     if newest_commit_sha != last_commit_sha:
         last_commit_sha = newest_commit_sha
         print_commit(commit)
         #song_to_play = check_committer(commit['author']['name'])
-        song_to_play = imperial_march
+        song_to_play = config['music']
         play_song(song_to_play)
     sleep(60)
     go(last_commit_sha)
 
 
 if __name__ == '__main__':
-    last_commit = fetch_last_commit(invenio_repo)
+    execfile("gitbeep.conf", config)
+    last_commit = fetch_last_commit(config['repository'])
     go(last_commit)
