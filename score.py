@@ -1,6 +1,7 @@
 import json
-from os import path
-
+from os import path, system
+import operator
+from colors import bcolors
 
 class Leaderboard(object):
     def __init__(self):
@@ -25,4 +26,25 @@ class Leaderboard(object):
             self._score_file.close()
             self._score_file = open("scores.sco", "w+")
             self._score_file.write(json.dumps(self._score))
+
+    def print_leaderboard(self):
+        clear = lambda: system('clear')
+        clear()
+        commiters = self._score["commiters"]
+        sorted_score = sorted(commiters.iteritems(), key=operator.itemgetter(1))
+        to_print = bcolors.HEADER + "LEADERBOARD : \n ===========\n" + bcolors.ENDC
+        for score in sorted_score:
+            to_print += "\n"
+            to_print += str(score[0])
+            to_print += "  "
+            to_print +=  bcolors.OKBLUE + str(score[1]) + bcolors.ENDC
+
+        print to_print
+
+
+
+
+
+
+
 

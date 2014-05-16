@@ -6,20 +6,19 @@ import shlex
 from os import path
 import math
 from score import Leaderboard
-config = {}
+import select
+import sys
+import logging
+from colors import bcolors
 
+my_logger = logging.getLogger("my_logger")
+config = {}
 
 global_time = time()
 
 my_leaderboard = Leaderboard()
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+
 
 
 def fetch_last_commit(repo):
@@ -66,19 +65,41 @@ def play_song(music):
 
 
 def go(last_commit_sha):
-    newest_commit_sha, commit = fetch_last_commit(config['repository'])
-    if newest_commit_sha != last_commit_sha:
-        last_commit_sha = newest_commit_sha
-        print_commit(commit)
-        my_leaderboard.score_add_commit(commit['author']['name'], newest_commit_sha)
-        song_to_play = check_committer(commit['author']['name'])
-        play_song(song_to_play)
-        global_time = time()
-    sleep(60)
+    try:
+        newest_commit_sha, commit = fetch_last_commit(config['repository'])
+        if newest_commit_sha != last_commit_sha:
+            last_commit_sha = newest_commit_sha
+            print_commit(commit)
+            my_leaderboard.score_add_commit(commit['author']['name'],
+                                            newest_commit_sha)
+            song_to_play = check_committer(commit['author']['name'])
+            play_song(song_to_play)
+            global_time = time()
+    except:
+        my_logger.log(40, "github doesn't answer")
+        last_commit_sha = None
+    sleep(10)
+    my_leaderboard.print_leaderboard()
     go(last_commit_sha)
+
+
+def heardEnter():
+    i, o, e = select.select([sys.stdin], [], [], 0.001)
+    print "bitch"
+    for s in i:
+        if s == sys.stdin:
+            input = sys.stdin.readline()
+            print input
+
 
 
 if __name__ == '__main__':
     execfile("gitbeep.conf", config)
-    last_commit = fetch_last_commit(config['repository'])
+    try:
+        last_commit = fetch_last_commit(config['repository'])
+    except:
+        last_commit = None
+
+
     go(last_commit)
+
