@@ -64,17 +64,17 @@ def print_commit(commit, user_id, sha):
                  commit['author']['name'],
                  bcolors.ENDC)
     message = '%s' % commit['message']
-    merging_time = pull_requests.get_frustration_time(user_id,
-                                                      sha,
-                                                      commit['author']['date'])
-    merging_timep = '%sIt took %s to get merged.%s\n\n' % \
-                    (bcolors.OKBLUE, merging_time, bcolors.ENDC)
+    # merging_time = pull_requests.get_frustration_time(user_id,
+    #                                                   sha,
+    #                                                   commit['author']['date'])
+    # merging_timep = '%sIt took %s to get merged.%s\n\n' % \
+    #                 (bcolors.OKBLUE, merging_time, bcolors.ENDC)
     line = 0
 
-    lines_to_print = committer + message + merging_timep
+    lines_to_print = committer + message# + merging_timep
     lines_to_print = lines_to_print.split('\n')
     for i in lines_to_print:
-        stdscr.addstr(0, i, line)
+        stdscr.addstr(line, 0, i)
         stdscr.refresh()
         line = line + 1
 
@@ -97,20 +97,20 @@ def go(last_commit_sha):
     * plays song
     * waits for 10 seconds and repeats everything
     """
-    try:
-        newest_commit_sha, commit, user_id = fetch_newest_commit(config['commit_repo'])
-        if newest_commit_sha != last_commit_sha:
-            last_commit_sha = newest_commit_sha
-            print_commit(commit, user_id, newest_commit_sha)
-            my_leaderboard.score_add_commit(commit['author']['name'],
-                                            newest_commit_sha)
-            pull_requests.update(config['pullrequests_repo'])
-            song_to_play = get_song_name(commit['author']['name'])
-            play_song(song_to_play)
-    except Exception as e:
-        stdscr.addstr(0, 0, "github doesn't answer {0}".format(e))
-        stdscr.refresh()
-        last_commit_sha = None
+    #try:
+    newest_commit_sha, commit, user_id = fetch_newest_commit(config['commit_repo'])
+    if newest_commit_sha != last_commit_sha:
+        last_commit_sha = newest_commit_sha
+        print_commit(commit, user_id, newest_commit_sha)
+        my_leaderboard.score_add_commit(commit['author']['name'],
+                                        newest_commit_sha)
+        pull_requests.update(config['pullrequests_repo'])
+        song_to_play = get_song_name(commit['author']['name'])
+        play_song(song_to_play)
+    #except Exception as e:
+        # stdscr.addstr(0, 0, "github doesn't answer {0}".format(e))
+        # stdscr.refresh()
+        # last_commit_sha = None
     sleep(10)
     go(last_commit_sha)
 
