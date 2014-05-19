@@ -17,7 +17,7 @@ Run `python go.py`
 Configure
 ---------
 
-In `gitbeep.conf`:
+In `config.json`:
 
     commit_repo = 'https://api.github.com/repos/:username/:repository/commits'
 
