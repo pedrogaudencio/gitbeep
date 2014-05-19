@@ -18,10 +18,11 @@ from pullrequests import PRCalc
 
 def signal_handler(signal, frame):
     curses.nocbreak()
+    stdscr.addstr("You pressed Ctrl+C!")
+    stdscr.refresh()
     stdscr.keypad(0)
     curses.echo()
     curses.endwin()
-    print('You pressed Ctrl+C!')
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -30,6 +31,7 @@ config = {}
 stdscr = curses.initscr()
 curses.noecho()
 curses.cbreak()
+stdscr.keypad(1)
 
 my_leaderboard = Leaderboard()
 pull_requests = PRCalc()
@@ -61,8 +63,6 @@ def print_commit(commit, user_id, sha):
     committer = '%s\n%s just got merged!%s\n\n' % \
                 (bcolors.OKGREEN,
                  commit['author']['name'],
-                 # '{:%Y-%m-%d %H:%M:%S}'.format(datetime.strptime(commit['author']['date'],
-                 #                                                 '%Y-%m-%dT%H:%M:%SZ')),
                  bcolors.ENDC)
     message = '%s' % commit['message']
     merging_time = pull_requests.get_frustration_time(user_id,
@@ -75,7 +75,7 @@ def print_commit(commit, user_id, sha):
     lines_to_print = committer + message + merging_timep
     lines_to_print = lines_to_print.split('\n')
     for i in lines_to_print:
-        stdscr.addstr(line, 0, i)
+        stdscr.addstr(0, i, line)
         stdscr.refresh()
         line = line + 1
 
@@ -110,19 +110,12 @@ def go(last_commit_sha):
             song_to_play = get_song_name(commit['author']['name'])
             play_song(song_to_play)
     except:
-        print "github doesn't answer"
+        stdscr.addstr(0, 0, "github doesn't answer")
+        stdscr.refresh()
         last_commit_sha = None
     sleep(10)
     go(last_commit_sha)
 
-
-def heardEnter():
-    i, o, e = select.select([sys.stdin], [], [], 0.001)
-    print "bitch"
-    for s in i:
-        if s == sys.stdin:
-            input = sys.stdin.readline()
-            print input
 
 
 if __name__ == '__main__':
