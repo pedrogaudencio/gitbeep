@@ -52,7 +52,7 @@ def get_song_name(name):
     If the author's individual song isn't defined in the
     configuration file, it plays the default one.
     """
-    if name not in config['individual']:
+    if name not in config['individual'] or not config['individual'][name]:
         return config['music']
     return config['individual']['name']
 
