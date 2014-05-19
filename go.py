@@ -40,7 +40,6 @@ pull_requests = PRCalc()
 def fetch_newest_commit(repo):
     """Fetch the newest from the repository."""
     r = requests.get(repo)
-
     if r.ok:
         repoItem = json.loads(r.text or r.content)
         return repoItem[0]['sha'], repoItem[0]['commit'], repoItem[0]['author']['id']
@@ -99,8 +98,7 @@ def go(last_commit_sha):
     * waits for 10 seconds and repeats everything
     """
     try:
-        newest_commit_sha, commit, user_id = fetch_newest_commit(
-            config['commit_repo'])
+        newest_commit_sha, commit, user_id = fetch_newest_commit(config['commit_repo'])
         if newest_commit_sha != last_commit_sha:
             last_commit_sha = newest_commit_sha
             print_commit(commit, user_id, newest_commit_sha)
@@ -109,8 +107,8 @@ def go(last_commit_sha):
             pull_requests.update(config['pullrequests_repo'])
             song_to_play = get_song_name(commit['author']['name'])
             play_song(song_to_play)
-    except:
-        stdscr.addstr(0, 0, "github doesn't answer")
+    except Exception as e:
+        stdscr.addstr(0, 0, "github doesn't answer {0}".format(e))
         stdscr.refresh()
         last_commit_sha = None
     sleep(10)
@@ -122,7 +120,9 @@ if __name__ == '__main__':
     execfile("gitbeep.conf", config)
     try:
         last_commit = fetch_newest_commit(config['commit_repo'])
-    except:
+    except Exception as e:
+        stdscr.addstr(0, 0, "github doe sn't answer {0}".format(e.message))
+        stdscr.refresh()
         last_commit = None
 
     go(last_commit)
