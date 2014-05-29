@@ -7,7 +7,13 @@ It listens to a given repository, everytime there's a new commit it displays the
 Installation
 ------------
 
-Run `pip install -r requirements.txt`
+Dependency packages:
+
+- [`mpg123`](http://www.mpg123.de/)
+
+Python packages:
+
+`pip install -r requirements.txt`
 
 Execution
 ---------
@@ -29,5 +35,4 @@ In `config.json`:
 
     individual: {'Author 1': 'song1.mp3',
                  'Author 2': 'song2.mp3',
-                 'Author 3': 'song3.mp3',
-                }
+                 'Author 3': 'song3.mp3'}
